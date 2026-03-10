@@ -1,0 +1,8 @@
+services:
+  tests:
+    build: .
+    environment:
+      - CI=1
+      - BASE_URL=${BASE_URL:-https://example.com}
+    # Optional: pass OpenAI key only when generating tests
+    # env_file: .env

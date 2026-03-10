@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets (never commit)
+.env
+.env.local
+.env.*.local
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Build and tooling
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# IDE
+.idea/
+.vscode/*.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# Logs
+*.log
+npm-debug.log*
