@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Example regression suite', () => {
+test.describe('Example UI regression', () => {
   test('homepage has title', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/example/i);

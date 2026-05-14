@@ -1,25 +1,63 @@
 import { defineConfig, devices } from '@playwright/test';
+import { getTargetConfig } from './src/config/targets.js';
+
+const targets = getTargetConfig();
+const isCI = !!process.env.CI;
+const skipWebKit = process.env.SKIP_WEBKIT === '1' || process.env.SKIP_WEBKIT === 'true';
+
+const uiProjects = [
+  {
+    name: 'ui-chromium',
+    testMatch: 'ui/**/*.spec.ts',
+    use: { ...devices['Desktop Chrome'] },
+  },
+  {
+    name: 'ui-firefox',
+    testMatch: 'ui/**/*.spec.ts',
+    use: { ...devices['Desktop Firefox'] },
+  },
+  ...(skipWebKit
+    ? []
+    : [
+        {
+          name: 'ui-webkit',
+          testMatch: 'ui/**/*.spec.ts',
+          use: { ...devices['Desktop Safari'] },
+        },
+      ]),
+];
 
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
-  reporter: [
-    ['html', { open: 'never' }],
-    ['list'],
-  ],
+  forbidOnly: isCI,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 2 : undefined,
+  reporter: isCI
+    ? [
+        ['html', { open: 'never' }],
+        ['list'],
+        ['junit', { outputFile: 'test-results/junit.xml' }],
+      ]
+    : [['html', { open: 'never' }], ['list']],
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://example.com',
+    baseURL: targets.baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    ...uiProjects,
+    {
+      name: 'api',
+      testMatch: 'api/**/*.spec.ts',
+      use: {
+        baseURL: targets.apiBaseURL,
+        extraHTTPHeaders: {
+          Accept: 'application/json',
+        },
+      },
+    },
   ],
   timeout: 30_000,
   expect: { timeout: 10_000 },

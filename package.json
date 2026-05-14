@@ -5,10 +5,14 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --project=ui-chromium --project=ui-firefox --project=ui-webkit",
+    "test:api": "playwright test --project=api",
+    "test:security": "bash scripts/zap-baseline-docker.sh",
+    "test:ui:headed": "playwright test --headed --project=ui-chromium",
+    "test:ui:debug": "playwright test --debug --project=ui-chromium",
+    "test:ui:interactive": "playwright test --ui",
     "generate:tests": "tsx src/ai/generate-tests.ts",
+    "generate:tests:api": "TEST_GEN_MODE=api tsx src/ai/generate-tests.ts",
     "report": "playwright show-report",
     "install:browsers": "playwright install"
   },
@@ -23,7 +27,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^22.10.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.0"
