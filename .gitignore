@@ -9,6 +9,11 @@ node_modules/
 # Playwright
 /test-results/
 /playwright-report/
+security-reports/
+
+# AI-generated specs (local only; do not commit)
+tests/ui/ai-generated.spec.ts
+tests/api/ai-generated.api.spec.ts
 /blob-report/
 /playwright/.cache/
 

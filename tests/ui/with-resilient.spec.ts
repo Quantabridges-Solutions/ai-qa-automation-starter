@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect } from '../fixtures.js';
 
 /**
  * Example using the self-healing/resilient selectors fixture.
@@ -6,7 +6,7 @@ import { test, expect } from './fixtures.js';
  */
 test.describe('Resilient selectors example', () => {
   test('example.com has heading', async ({ resilientPage, page }) => {
-    await page.goto('https://example.com');
+    await page.goto('/');
     const heading = resilientPage.byRoleAndName('heading', 'Example Domain');
     await expect(heading).toBeVisible();
   });

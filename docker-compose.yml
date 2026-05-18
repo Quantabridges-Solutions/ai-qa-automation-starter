@@ -4,5 +4,33 @@ services:
     environment:
       - CI=1
       - BASE_URL=${BASE_URL:-https://example.com}
+      - API_BASE_URL=${API_BASE_URL:-https://jsonplaceholder.typicode.com}
+      - TEST_ENV=${TEST_ENV:-default}
     # Optional: pass OpenAI key only when generating tests
     # env_file: .env
+
+  tests-api:
+    build: .
+    environment:
+      - CI=1
+      - API_BASE_URL=${API_BASE_URL:-https://jsonplaceholder.typicode.com}
+      - TEST_ENV=${TEST_ENV:-default}
+    command: ["npm", "run", "test:api"]
+
+  # Passive security scan (OWASP ZAP baseline). Requires Docker; writes ./security-reports
+  # Usage: SECURITY_TARGET_URL=https://your-app.com docker compose --profile security run --rm zap-scan
+  zap-scan:
+    profiles: ["security"]
+    image: ghcr.io/zaproxy/zaproxy:stable
+    volumes:
+      - ./security-reports:/zap/wrk/:rw
+    command:
+      [
+        "zap-baseline.py",
+        "-t",
+        "${SECURITY_TARGET_URL:-https://example.com}",
+        "-r",
+        "/zap/wrk/zap-report.html",
+        "-J",
+        "/zap/wrk/zap-out.json",
+      ]

@@ -1,0 +1,17 @@
+name: Performance smoke (k6)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  k6-api-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: grafana/setup-k6-action@v1.2.1
+
+      - name: Run k6 smoke against demo API
+        run: k6 run scripts/k6/api-smoke.js
+        env:
+          K6_API_BASE: https://jsonplaceholder.typicode.com

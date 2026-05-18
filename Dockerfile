@@ -1,5 +1,5 @@
 # Build and run Playwright tests in CI. Use docker-compose or GitHub Actions.
-FROM mcr.microsoft.com/playwright:v1.49.0-noble
+FROM mcr.microsoft.com/playwright:v1.58.2-noble
 
 WORKDIR /app
 

@@ -1,13 +1,53 @@
-name: Playwright
+name: QA ecosystem
 
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      security_target:
+        description: URL for OWASP ZAP baseline scan
+        required: false
+        type: string
+        default: https://example.com
 
 jobs:
-  test:
+  api-tests:
+    name: API tests (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium (API project)
+        run: npx playwright install chromium --with-deps
+
+      - name: Run API tests
+        run: npm run test:api
+        env:
+          CI: 1
+          API_BASE_URL: https://jsonplaceholder.typicode.com
+
+      - name: Upload JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-api
+          path: test-results/junit.xml
+          if-no-files-found: ignore
+
+  ui-tests:
+    name: UI tests (Playwright)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,16 +64,50 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run Playwright tests
-        run: npm run test
+      - name: Run UI tests
+        run: npm run test:ui
         env:
           CI: 1
           BASE_URL: https://example.com
 
-      - name: Upload report on failure
+      - name: Upload JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-ui
+          path: test-results/junit.xml
+          if-no-files-found: ignore
+
+      - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  dependency-audit:
+    name: npm dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - name: Audit production deps
+        run: npm audit --omit=dev
+
+  security-zap:
+    name: OWASP ZAP baseline (DAST)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: ${{ github.event.inputs.security_target || 'https://example.com' }}
+          fail_action: false
+          allow_issue_writing: false
