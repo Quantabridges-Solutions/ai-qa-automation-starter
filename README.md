@@ -46,7 +46,7 @@ scripts/
 ## Quick start
 
 ```bash
-git clone https://github.com/quantabridges/ai-qa-automation-starter.git
+git clone https://github.com/Quantabridges-Solutions/ai-qa-automation-starter.git
 cd ai-qa-automation-starter
 npm install
 npx playwright install
